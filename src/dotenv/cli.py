@@ -26,9 +26,7 @@ from .version import __version__
 def cli(ctx, file, quote):
     # type: (click.Context, Any, Any) -> None
     '''This script is used to set, get or unset values from a .env file.'''
-    ctx.obj = {}
-    ctx.obj['FILE'] = file
-    ctx.obj['QUOTE'] = quote
+    ctx.obj = {'FILE': file, 'QUOTE': quote}
 
 
 @cli.command()
@@ -39,7 +37,7 @@ def list(ctx):
     file = ctx.obj['FILE']
     dotenv_as_dict = dotenv_values(file)
     for k, v in dotenv_as_dict.items():
-        click.echo('%s=%s' % (k, v))
+        click.echo(f'{k}={v}')
 
 
 @cli.command()
@@ -53,7 +51,7 @@ def set(ctx, key, value):
     quote = ctx.obj['QUOTE']
     success, key, value = set_key(file, key, value, quote)
     if success:
-        click.echo('%s=%s' % (key, value))
+        click.echo(f'{key}={value}')
     else:
         exit(1)
 
@@ -65,9 +63,8 @@ def get(ctx, key):
     # type: (click.Context, Any) -> None
     '''Retrieve the value for the given key.'''
     file = ctx.obj['FILE']
-    stored_value = get_key(file, key)
-    if stored_value:
-        click.echo('%s=%s' % (key, stored_value))
+    if stored_value := get_key(file, key):
+        click.echo(f'{key}={stored_value}')
     else:
         exit(1)
 
@@ -82,7 +79,7 @@ def unset(ctx, key):
     quote = ctx.obj['QUOTE']
     success, key = unset_key(file, key, quote)
     if success:
-        click.echo("Successfully removed %s" % key)
+        click.echo(f"Successfully removed {key}")
     else:
         exit(1)
 
@@ -125,7 +122,7 @@ def run_command(command, env):
     # copy the current environment variables and add the vales from
     # `env`
     cmd_env = os.environ.copy()
-    cmd_env.update(env)
+    cmd_env |= env
 
     p = Popen(command,
               universal_newlines=True,

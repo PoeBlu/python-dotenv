@@ -22,7 +22,7 @@ def restore_os_environ():
     try:
         yield
     finally:
-        os.environ.update(environ)
+        os.environ |= environ
 
 
 def test_warns_if_file_does_not_exist():

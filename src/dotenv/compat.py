@@ -14,10 +14,7 @@ def to_env(text):
     """
     Encode a string the same way whether it comes from the environment or a `.env` file.
     """
-    if PY2:
-        return text.encode(sys.getfilesystemencoding() or "utf-8")
-    else:
-        return text
+    return text.encode(sys.getfilesystemencoding() or "utf-8") if PY2 else text
 
 
 def to_text(string):
@@ -28,7 +25,4 @@ def to_text(string):
     This is useful for defining raw unicode strings because `ur"foo"` isn't valid in
     Python 3.
     """
-    if PY2:
-        return string.decode("utf-8")
-    else:
-        return string
+    return string.decode("utf-8") if PY2 else string

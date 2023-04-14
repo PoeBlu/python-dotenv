@@ -17,16 +17,8 @@ from .compat import StringIO, PY2, to_env
 from .parser import parse_stream
 
 if TYPE_CHECKING:  # pragma: no cover
-    if sys.version_info >= (3, 6):
-        _PathLike = os.PathLike
-    else:
-        _PathLike = Text
-
-    if sys.version_info >= (3, 0):
-        _StringIO = StringIO
-    else:
-        _StringIO = StringIO[Text]
-
+    _PathLike = os.PathLike if sys.version_info >= (3, 6) else Text
+    _StringIO = StringIO if sys.version_info >= (3, 0) else StringIO[Text]
 __posix_variable = re.compile(r'\$\{[^\}]*\}')  # type: Pattern[Text]
 
 
@@ -49,7 +41,7 @@ class DotEnv():
                 yield stream
         else:
             if self.verbose:
-                warnings.warn("File doesn't exist {}".format(self.dotenv_path))  # type: ignore
+                warnings.warn(f"File doesn't exist {self.dotenv_path}")
             yield StringIO('')
 
     def dict(self):
@@ -91,7 +83,7 @@ class DotEnv():
             return data[key]
 
         if self.verbose:
-            warnings.warn("key %s not found in %s." % (key, self.dotenv_path))  # type: ignore
+            warnings.warn(f"key {key} not found in {self.dotenv_path}.")
 
         return None
 
@@ -131,7 +123,7 @@ def set_key(dotenv_path, key_to_set, value_to_set, quote_mode="always"):
     """
     value_to_set = value_to_set.strip("'").strip('"')
     if not os.path.exists(dotenv_path):
-        warnings.warn("can't write to %s - it doesn't exist." % dotenv_path)  # type: ignore
+        warnings.warn(f"can't write to {dotenv_path} - it doesn't exist.")
         return None, key_to_set, value_to_set
 
     if " " in value_to_set:
@@ -163,7 +155,7 @@ def unset_key(dotenv_path, key_to_unset, quote_mode="always"):
     If the given key doesn't exist in the .env, fails
     """
     if not os.path.exists(dotenv_path):
-        warnings.warn("can't delete from %s - it doesn't exist." % dotenv_path)  # type: ignore
+        warnings.warn(f"can't delete from {dotenv_path} - it doesn't exist.")
         return None, key_to_unset
 
     removed = False
@@ -175,7 +167,9 @@ def unset_key(dotenv_path, key_to_unset, quote_mode="always"):
                 dest.write(mapping.original)
 
     if not removed:
-        warnings.warn("key %s not removed from %s - key doesn't exist." % (key_to_unset, dotenv_path))  # type: ignore
+        warnings.warn(
+            f"key {key_to_unset} not removed from {dotenv_path} - key doesn't exist."
+        )
         return None, key_to_unset
 
     return removed, key_to_unset
